@@ -1,0 +1,405 @@
+/* ==========================================================================
+   Vitals — Health Index Monitor
+     --ink-black:   #05080c   (deep monitor background)
+     --panel-navy:  #0d141c   (surface panels)
+     --hairline:    #1c2733   (borders/dividers)
+     --signal-green:#33ffb2   (pulse/ECG channel + "normal" status)
+     --signal-amber:#ff9d3d   (blood pressure channel)
+     --signal-cyan: #22d3ee   (blood sugar channel)
+     --alert-red:   #ff5c5c   (high/concern status)
+     --caution-yellow:#ffcc66 (elevated/borderline status)
+     --text-primary:#e8edf2
+     --text-dim:    #6b7d8f
+   ========================================================================== */
+
+:root {
+  --ink-black: #05080c;
+  --panel-navy: #0d141c;
+  --panel-navy-raised: #111b26;
+  --hairline: #1c2733;
+  --signal-green: #33ffb2;
+  --signal-amber: #ff9d3d;
+  --signal-cyan: #22d3ee;
+  --alert-red: #ff5c5c;
+  --caution-yellow: #ffcc66;
+  --text-primary: #e8edf2;
+  --text-dim: #6b7d8f;
+
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--ink-black);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+
+.monitor {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 900px;
+  margin: 0 auto;
+  border-left: 1px solid var(--hairline);
+  border-right: 1px solid var(--hairline);
+}
+
+/* ---------- Top bar ---------- */
+.monitor__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--panel-navy);
+}
+
+.topbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--signal-green);
+  box-shadow: 0 0 8px var(--signal-green);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.brand__name {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  color: var(--signal-green);
+}
+
+.brand__subtitle {
+  font-size: 13px;
+  color: var(--text-dim);
+  border-left: 1px solid var(--hairline);
+  padding-left: 10px;
+}
+
+.status__label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+}
+
+/* ---------- Waveform strip (signature element) ---------- */
+.waveform {
+  background: var(--ink-black);
+  border-bottom: 1px solid var(--hairline);
+  height: 64px;
+  overflow: hidden;
+}
+
+.waveform__svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+#wave-path {
+  fill: none;
+  stroke: var(--signal-green);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 4px rgba(51, 255, 178, 0.6));
+}
+
+/* ---------- Vital tiles ---------- */
+.vitals {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.vital-tile {
+  background: var(--panel-navy);
+  padding: 14px 16px;
+  transition: background 0.4s ease;
+}
+
+.vital-tile__label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.vital-tile__value {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 26px;
+  color: var(--text-dim);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.vital-tile__unit {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-dim);
+}
+
+.vital-tile__badge {
+  margin-top: 8px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+}
+
+/* channel accent colors once a reading lands */
+#tile-bp.is-filled .vital-tile__value {
+  color: var(--signal-amber);
+}
+#tile-sugar.is-filled .vital-tile__value {
+  color: var(--signal-cyan);
+}
+#tile-pulse.is-filled .vital-tile__value {
+  color: var(--signal-green);
+}
+
+/* classification badge states */
+.vital-tile__badge.status--normal {
+  color: var(--signal-green);
+}
+.vital-tile__badge.status--caution {
+  color: var(--caution-yellow);
+}
+.vital-tile__badge.status--alert {
+  color: var(--alert-red);
+}
+
+/* ---------- Chat ---------- */
+.chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--ink-black);
+  min-height: 0;
+}
+
+.chat__log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.msg {
+  max-width: 78%;
+  padding: 11px 14px;
+  border-radius: 10px;
+  line-height: 1.45;
+  font-size: 14.5px;
+  white-space: pre-wrap;
+}
+
+.msg--bot {
+  align-self: flex-start;
+  background: var(--panel-navy-raised);
+  border: 1px solid var(--hairline);
+  border-top-left-radius: 2px;
+  color: var(--text-primary);
+}
+
+.msg--user {
+  align-self: flex-end;
+  background: rgba(51, 255, 178, 0.1);
+  border: 1px solid rgba(51, 255, 178, 0.35);
+  border-top-right-radius: 2px;
+  color: var(--text-primary);
+}
+
+.msg--typing {
+  align-self: flex-start;
+  display: flex;
+  gap: 4px;
+  padding: 14px;
+  background: var(--panel-navy-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  border-top-left-radius: 2px;
+}
+
+.msg--typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--signal-green);
+  animation: typing-bounce 1.1s infinite ease-in-out;
+}
+.msg--typing span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.msg--typing span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes typing-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+/* ---------- Composer ---------- */
+.chat__composer {
+  display: flex;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--hairline);
+  background: var(--panel-navy);
+}
+
+.chat__input {
+  flex: 1;
+  background: var(--ink-black);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14.5px;
+}
+
+.chat__input:focus {
+  outline: 2px solid var(--signal-green);
+  outline-offset: 1px;
+}
+
+.chat__send {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  padding: 0 20px;
+  border-radius: 8px;
+  border: 1px solid var(--signal-green);
+  background: rgba(51, 255, 178, 0.12);
+  color: var(--signal-green);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.chat__send:hover {
+  background: rgba(51, 255, 178, 0.22);
+}
+.chat__send:focus-visible {
+  outline: 2px solid var(--signal-green);
+  outline-offset: 2px;
+}
+.chat__send:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ---------- Footer ---------- */
+.monitor__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px;
+  border-top: 1px solid var(--hairline);
+  background: var(--panel-navy);
+}
+
+.footer__restart {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  background: none;
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.footer__restart:hover {
+  color: var(--signal-green);
+  border-color: var(--signal-green);
+}
+
+.footer__note {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 640px) {
+  .vitals {
+    grid-template-columns: 1fr;
+  }
+  .topbar__brand {
+    gap: 8px;
+  }
+  .brand__subtitle {
+    display: none;
+  }
+  .status__label {
+    display: none;
+  }
+  .msg {
+    max-width: 88%;
+  }
+  .monitor__footer {
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .brand__dot {
+    animation: none;
+  }
+  .msg--typing span {
+    animation: none;
+    opacity: 0.7;
+  }
+  #wave-path {
+    transition: none;
+  }
+}
