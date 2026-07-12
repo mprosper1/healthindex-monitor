@@ -1,5 +1,7 @@
 /* ==========================================================================
    Vitals — Health Index Monitor
+   Design language: real multi-parameter patient monitor.
+   Palette:
      --ink-black:   #05080c   (deep monitor background)
      --panel-navy:  #0d141c   (surface panels)
      --hairline:    #1c2733   (borders/dividers)
@@ -46,11 +48,11 @@ body {
 .monitor {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  max-width: 900px;
-  margin: 0 auto;
-  border-left: 1px solid var(--hairline);
-  border-right: 1px solid var(--hairline);
+  height: 100%;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* ---------- Top bar ---------- */
@@ -142,6 +144,64 @@ body {
   border-bottom: 1px solid var(--hairline);
 }
 
+.vitals--four {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+#tile-temp.is-filled .vital-tile__value {
+  color: var(--caution-yellow);
+}
+
+.vitals-panel__toggle {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .vitals--four {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .vitals-panel__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: var(--panel-navy);
+    border: none;
+    border-bottom: 1px solid var(--hairline);
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    padding: 10px 16px;
+    cursor: pointer;
+  }
+
+  .vitals-panel__arrow {
+    display: inline-block;
+    transition: transform 0.25s ease;
+  }
+
+  .vitals-panel.is-open .vitals-panel__arrow {
+    transform: rotate(180deg);
+  }
+
+  /* Collapsed by default on mobile: tiles hidden, chat gets the space.
+       Tapping the toggle expands them via max-height animation. */
+  .vitals-panel .vitals {
+    max-height: 0;
+    overflow: hidden;
+    border-bottom: none;
+    transition: max-height 0.3s ease;
+  }
+
+  .vitals-panel.is-open .vitals {
+    max-height: 500px;
+    overflow-y: auto;
+    border-bottom: 1px solid var(--hairline);
+  }
+}
+
 .vital-tile {
   background: var(--panel-navy);
   padding: 14px 16px;
@@ -209,6 +269,7 @@ body {
   flex-direction: column;
   background: var(--ink-black);
   min-height: 0;
+  overflow: hidden;
 }
 
 .chat__log {
@@ -368,9 +429,6 @@ body {
 
 /* ---------- Responsive ---------- */
 @media (max-width: 640px) {
-  .vitals {
-    grid-template-columns: 1fr;
-  }
   .topbar__brand {
     gap: 8px;
   }
@@ -401,5 +459,509 @@ body {
   }
   #wave-path {
     transition: none;
+  }
+}
+
+.footer__report-link {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--signal-cyan);
+  text-decoration: none;
+}
+.footer__report-link:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+     App shell — sidebar + main content, used by dashboard/vitals/report pages
+     ========================================================================== */
+.app-shell {
+  display: flex;
+  height: 100vh;
+  max-width: 1100px;
+  margin: 0 auto;
+  border-left: 1px solid var(--hairline);
+  border-right: 1px solid var(--hairline);
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 210px;
+  flex-shrink: 0;
+  background: var(--panel-navy);
+  border-right: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 16px;
+  position: relative;
+}
+
+.sidebar__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px 20px;
+  border-bottom: 1px solid var(--hairline);
+  margin-bottom: 16px;
+}
+
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar__toggle {
+  display: none;
+  background: none;
+  border: 1px solid var(--hairline);
+  color: var(--text-primary);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.sidebar__backdrop {
+  display: none;
+}
+
+/* On desktop the drawer is just a plain wrapper — "display: contents" makes
+     its children behave as if they were direct flex items of .sidebar, so the
+     nav still stretches (flex: 1) and pushes the user block to the bottom. */
+.sidebar__drawer {
+  display: contents;
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.sidebar__link {
+  font-size: 13.5px;
+  color: var(--text-dim);
+  text-decoration: none;
+  padding: 10px 12px;
+  border-radius: 6px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sidebar__link:hover {
+  background: var(--panel-navy-raised);
+  color: var(--text-primary);
+}
+
+.sidebar__link.is-active {
+  background: rgba(51, 255, 178, 0.1);
+  color: var(--signal-green);
+  border: 1px solid rgba(51, 255, 178, 0.3);
+}
+
+.sidebar__user {
+  border-top: 1px solid var(--hairline);
+  padding-top: 14px;
+  margin-top: 14px;
+}
+
+.sidebar__user-name {
+  font-size: 12.5px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  word-break: break-word;
+}
+
+.sidebar__logout {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  background: none;
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  width: 100%;
+}
+.sidebar__logout:hover {
+  color: var(--alert-red);
+  border-color: var(--alert-red);
+}
+
+/* ---------- Mobile: sidebar becomes a topbar + slide-in drawer ---------- */
+@media (max-width: 640px) {
+  .app-shell {
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-shrink: 0;
+    padding: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .sidebar__topbar {
+    padding: 12px 16px;
+    margin-bottom: 0;
+    border-bottom: none;
+  }
+
+  .sidebar__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Backdrop dims the page behind the open drawer; tapping it closes it */
+  .sidebar.is-open .sidebar__backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 900;
+  }
+
+  /* The drawer itself: a fixed slide-in panel from the left, independent
+       of normal document flow so it can never be clipped or pushed around
+       by the rest of the layout. */
+  .sidebar__drawer {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 250px;
+    max-width: 80vw;
+    background: var(--panel-navy);
+    border-right: 1px solid var(--hairline);
+    padding: 70px 16px 20px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 950;
+  }
+
+  .sidebar.is-open .sidebar__drawer {
+    transform: translateX(0);
+  }
+
+  .sidebar__nav {
+    flex: 1;
+  }
+
+  .sidebar__user {
+    border-top: 1px solid var(--hairline);
+    padding-top: 14px;
+    margin-top: 14px;
+  }
+}
+
+/* ==========================================================================
+     Login page
+     ========================================================================== */
+.login-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-screen {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--panel-navy);
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  padding: 32px 28px;
+}
+
+.login-card__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.login-card__subtitle {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin: 0 0 24px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.login-form__label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  margin-top: 10px;
+}
+
+.login-form__input {
+  background: var(--ink-black);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  padding: 11px 12px;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+}
+.login-form__input:focus {
+  outline: 2px solid var(--signal-green);
+  outline-offset: 1px;
+}
+
+.login-form__submit {
+  margin-top: 20px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--signal-green);
+  background: rgba(51, 255, 178, 0.12);
+  color: var(--signal-green);
+  cursor: pointer;
+}
+.login-form__submit:hover {
+  background: rgba(51, 255, 178, 0.22);
+}
+
+.login-card__note {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin: 18px 0 0;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+     Dashboard main content
+     ========================================================================== */
+.dashboard-main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: 32px 36px;
+  overflow-y: auto;
+}
+
+.dashboard-main__header h1 {
+  font-size: 24px;
+  margin: 0 0 6px;
+}
+
+.dashboard-main__subtitle {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin: 0 0 28px;
+}
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.dashboard-card {
+  display: block;
+  background: var(--panel-navy);
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  padding: 22px;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: border-color 0.15s ease;
+}
+.dashboard-card:hover {
+  border-color: var(--signal-green);
+}
+
+.dashboard-card__label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--signal-green);
+  margin-bottom: 10px;
+}
+
+.dashboard-card__desc {
+  font-size: 13.5px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.dashboard-card__cta {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.dashboard-main__disclaimer {
+  margin-top: 32px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+@media (max-width: 640px) {
+  .dashboard-main {
+    padding: 24px 18px;
+  }
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+     Report page
+     ========================================================================== */
+.report-card {
+  background: var(--panel-navy);
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.report-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  font-size: 13px;
+  color: var(--text-primary);
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.report-card__meta-label {
+  color: var(--text-dim);
+  margin-right: 4px;
+}
+
+.report-card__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.report-card__item {
+  background: var(--panel-navy-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.report-card__item-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.report-card__item-value {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--text-primary);
+}
+.report-card__item-value span {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-dim);
+}
+
+.report-card__item-status {
+  font-size: 11px;
+  margin-top: 6px;
+  color: var(--text-dim);
+}
+.report-card__item-status.status--normal {
+  color: var(--signal-green);
+}
+.report-card__item-status.status--caution {
+  color: var(--caution-yellow);
+}
+.report-card__item-status.status--alert {
+  color: var(--alert-red);
+}
+
+.report-card__advice {
+  border-top: 1px solid var(--hairline);
+  padding-top: 16px;
+}
+
+.report-card__advice-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.report-card__advice p {
+  font-size: 13.5px;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.report-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.report-actions__download {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--signal-green);
+  background: rgba(51, 255, 178, 0.12);
+  color: var(--signal-green);
+  cursor: pointer;
+}
+.report-actions__download:hover {
+  background: rgba(51, 255, 178, 0.22);
+}
+
+.report-actions__redo {
+  font-size: 13px;
+  color: var(--text-dim);
+  text-decoration: none;
+}
+.report-actions__redo:hover {
+  color: var(--signal-cyan);
+}
+
+@media (max-width: 640px) {
+  .report-card__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .report-actions {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

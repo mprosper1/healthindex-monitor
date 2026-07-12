@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vitals — Health Index Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <div class="app-shell">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar__topbar">
+        <div class="sidebar__brand">
+          <span class="brand__dot"></span>
+          <span class="brand__name">VITALS</span>
+        </div>
+        <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle menu">☰</button>
+      </div>
+
+      <div class="sidebar__backdrop" id="sidebar-backdrop"></div>
+
+      <div class="sidebar__drawer">
+        <nav class="sidebar__nav">
+          <a href="dashboard.html" class="sidebar__link">Overview</a>
+          <a href="vitals.html" class="sidebar__link is-active">Vitals AI</a>
+          <a href="report.html" class="sidebar__link">Health Report</a>
+        </nav>
+
+        <div class="sidebar__user">
+          <div class="sidebar__user-name" id="sidebar-user-name">—</div>
+          <button class="sidebar__logout" id="logout-btn">Log out</button>
+        </div>
+      </div>
+    </aside>
+
+    <div class="monitor">
+
+      <!-- Signature element: live ECG waveform strip -->
+      <div class="waveform">
+        <svg class="waveform__svg" viewBox="0 0 1200 100" preserveAspectRatio="none">
+          <path id="wave-path" d="" />
+        </svg>
+      </div>
+
+      <!-- Vital sign tiles - collapsible on mobile so chat has room -->
+      <div class="vitals-panel" id="vitals-panel">
+        <button class="vitals-panel__toggle" id="vitals-toggle" aria-expanded="false">
+          <span>Vitals</span>
+          <span class="vitals-panel__arrow" id="vitals-arrow">▾</span>
+        </button>
+        <section class="vitals vitals--four" aria-label="Recorded vital signs">
+          <div class="vital-tile" id="tile-bp" data-channel="bp">
+            <div class="vital-tile__label">BLOOD PRESSURE</div>
+            <div class="vital-tile__value"><span id="val-bp">--/--</span><span class="vital-tile__unit">mmHg</span>
+            </div>
+            <div class="vital-tile__badge" id="badge-bp">awaiting reading</div>
+          </div>
+          <div class="vital-tile" id="tile-sugar" data-channel="sugar">
+            <div class="vital-tile__label">BLOOD SUGAR</div>
+            <div class="vital-tile__value"><span id="val-sugar">--</span><span class="vital-tile__unit">mg/dL</span>
+            </div>
+            <div class="vital-tile__badge" id="badge-sugar">awaiting reading</div>
+          </div>
+          <div class="vital-tile" id="tile-pulse" data-channel="pulse">
+            <div class="vital-tile__label">PULSE</div>
+            <div class="vital-tile__value"><span id="val-pulse">--</span><span class="vital-tile__unit">bpm</span></div>
+            <div class="vital-tile__badge" id="badge-pulse">awaiting reading</div>
+          </div>
+          <div class="vital-tile" id="tile-temp" data-channel="temp">
+            <div class="vital-tile__label">TEMPERATURE</div>
+            <div class="vital-tile__value"><span id="val-temp">--</span><span class="vital-tile__unit">°C</span></div>
+            <div class="vital-tile__badge" id="badge-temp">awaiting reading</div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Chat panel -->
+      <main class="chat" aria-label="Conversation with health monitoring assistant">
+        <div class="chat__log" id="chat-log"></div>
+
+        <form class="chat__composer" id="chat-form">
+          <input type="text" id="chat-input" class="chat__input" placeholder="Type your reply..." autocomplete="off"
+            aria-label="Your message" />
+          <button type="submit" class="chat__send" id="chat-send" aria-label="Send message">
+            SEND
+          </button>
+        </form>
+      </main>
+
+      <footer class="monitor__footer">
+        <button class="footer__restart" id="restart-btn" type="button">↺ Restart session</button>
+        <a href="report.html" class="footer__report-link">View / download report →</a>
+        <span class="footer__note">Not a substitute for professional medical advice.</span>
+      </footer>
+
+    </div>
+
+  </div>
+
+  <script src="dashboard.js"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>

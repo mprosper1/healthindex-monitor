@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vitals — Health Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+
+  <div class="app-shell">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar__topbar">
+        <div class="sidebar__brand">
+          <span class="brand__dot"></span>
+          <span class="brand__name">VITALS</span>
+        </div>
+        <button class="sidebar__toggle" id="sidebar-toggle" aria-label="Toggle menu">☰</button>
+      </div>
+
+      <div class="sidebar__backdrop" id="sidebar-backdrop"></div>
+
+      <div class="sidebar__drawer">
+        <nav class="sidebar__nav">
+          <a href="dashboard.html" class="sidebar__link">Overview</a>
+          <a href="vitals.html" class="sidebar__link">Vitals AI</a>
+          <a href="report.html" class="sidebar__link is-active">Health Report</a>
+        </nav>
+
+        <div class="sidebar__user">
+          <div class="sidebar__user-name" id="sidebar-user-name">—</div>
+          <button class="sidebar__logout" id="logout-btn">Log out</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="dashboard-main">
+      <header class="dashboard-main__header">
+        <h1>Health Report</h1>
+        <p class="dashboard-main__subtitle">
+          Summary of your latest check-in — downloadable to share with a
+          doctor or pharmacist.
+        </p>
+      </header>
+
+      <section class="report-card" id="report-card">
+        <div class="report-card__meta">
+          <div><span class="report-card__meta-label">Name:</span> <span id="report-name">—</span></div>
+          <div><span class="report-card__meta-label">Email:</span> <span id="report-email">—</span></div>
+          <div><span class="report-card__meta-label">Date:</span> <span id="report-date">—</span></div>
+        </div>
+
+        <div class="report-card__grid" id="report-grid">
+          <!-- populated by report.js -->
+        </div>
+
+        <div class="report-card__advice">
+          <div class="report-card__advice-label">AI Summary &amp; Guidance</div>
+          <p id="report-advice">
+            No check-in recorded yet. Visit Vitals AI to record your readings
+            first.
+          </p>
+        </div>
+      </section>
+
+      <div class="report-actions">
+        <button class="report-actions__download" id="download-btn">Download PDF Report</button>
+        <a href="vitals.html" class="report-actions__redo">Start a new check-in</a>
+      </div>
+
+      <p class="dashboard-main__disclaimer">
+        This report is not a medical diagnosis. Please consult a licensed
+        healthcare professional.
+      </p>
+    </main>
+
+  </div>
+
+  <script src="dashboard.js"></script>
+  <script src="report.js"></script>
+</body>
+
+</html>

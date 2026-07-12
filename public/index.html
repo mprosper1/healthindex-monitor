@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vitals — Health Index Monitor</title>
+  <title>Vitals — Sign In</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
@@ -12,65 +12,37 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 
-<body>
+<body class="login-body">
 
-  <div class="monitor">
-    <header class="monitor__topbar">
-      <div class="topbar__brand">
+  <div class="login-screen">
+    <div class="login-card">
+      <div class="login-card__brand">
         <span class="brand__dot"></span>
         <span class="brand__name">VITALS</span>
-        <span class="brand__subtitle">Health Index Monitor</span>
       </div>
-      <div class="topbar__status">
-        <span class="status__label">SEN 221 · GROUP PROJECT</span>
-      </div>
-    </header>
+      <p class="login-card__subtitle">Health Index Monitor — sign in to begin your check-in</p>
 
-    <div class="waveform">
-      <svg class="waveform__svg" viewBox="0 0 1200 100" preserveAspectRatio="none">
-        <path id="wave-path" d="" />
-      </svg>
-    </div>
+      <form id="login-form" class="login-form">
+        <label class="login-form__label" for="firstName">First name</label>
+        <input type="text" id="firstName" class="login-form__input" placeholder="e.g. Prosper" required />
 
-    <section class="vitals" aria-label="Recorded vital signs">
-      <div class="vital-tile" id="tile-bp" data-channel="bp">
-        <div class="vital-tile__label">BLOOD PRESSURE</div>
-        <div class="vital-tile__value"><span id="val-bp">--/--</span><span class="vital-tile__unit">mmHg</span></div>
-        <div class="vital-tile__badge" id="badge-bp">awaiting reading</div>
-      </div>
-      <div class="vital-tile" id="tile-sugar" data-channel="sugar">
-        <div class="vital-tile__label">BLOOD SUGAR</div>
-        <div class="vital-tile__value"><span id="val-sugar">--</span><span class="vital-tile__unit">mg/dL</span></div>
-        <div class="vital-tile__badge" id="badge-sugar">awaiting reading</div>
-      </div>
-      <div class="vital-tile" id="tile-pulse" data-channel="pulse">
-        <div class="vital-tile__label">PULSE</div>
-        <div class="vital-tile__value"><span id="val-pulse">--</span><span class="vital-tile__unit">bpm</span></div>
-        <div class="vital-tile__badge" id="badge-pulse">awaiting reading</div>
-      </div>
-    </section>
+        <label class="login-form__label" for="lastName">Last name</label>
+        <input type="text" id="lastName" class="login-form__input" placeholder="e.g. Mathias" required />
 
-    <!-- Chat panel -->
-    <main class="chat" aria-label="Conversation with health monitoring assistant">
-      <div class="chat__log" id="chat-log"></div>
+        <label class="login-form__label" for="email">Email</label>
+        <input type="email" id="email" class="login-form__input" placeholder="e.g. you@email.com" required />
 
-      <form class="chat__composer" id="chat-form">
-        <input type="text" id="chat-input" class="chat__input" placeholder="Type your reply..." autocomplete="off"
-          aria-label="Your message" />
-        <button type="submit" class="chat__send" id="chat-send" aria-label="Send message">
-          SEND
-        </button>
+        <button type="submit" class="login-form__submit">Continue to Dashboard</button>
       </form>
-    </main>
 
-    <footer class="monitor__footer">
-      <button class="footer__restart" id="restart-btn" type="button">↺ Restart session</button>
-      <span class="footer__note">Not a substitute for professional medical advice.</span>
-    </footer>
-
+      <p class="login-card__note">
+        This info is stored only in your current browser session — used to
+        label your health report. No account or password needed.
+      </p>
+    </div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="login.js"></script>
 </body>
 
 </html>

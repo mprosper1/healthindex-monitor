@@ -43,6 +43,15 @@ function classifyPulse(value) {
   return { label: "normal", tone: "normal" };
 }
 
+function classifyTemp(value) {
+  // Celsius, oral/body temperature reference ranges
+  if (value >= 39.5) return { label: "high fever", tone: "alert" };
+  if (value >= 38) return { label: "fever", tone: "caution" };
+  if (value < 35) return { label: "low (hypothermia risk)", tone: "alert" };
+  if (value < 36.1) return { label: "slightly low", tone: "caution" };
+  return { label: "normal", tone: "normal" };
+}
+
 // ---------------------------------------------------------------------------
 // Tile updates
 // ---------------------------------------------------------------------------
@@ -59,6 +68,33 @@ function setTile(channel, valueText, status) {
     badge.textContent = status.label;
     badge.classList.add(`status--${status.tone}`);
   }
+
+  saveReading(channel, valueText, status);
+}
+
+// Persist recorded readings to sessionStorage so report.html can read them
+// and generate the downloadable summary/PDF.
+function saveReading(channel, valueText, status) {
+  const readings = JSON.parse(
+    sessionStorage.getItem("vitals_readings") || "{}"
+  );
+  readings[channel] = {
+    value: valueText,
+    status: status ? status.label : "",
+    tone: status ? status.tone : "normal",
+  };
+  readings.updatedAt = new Date().toISOString();
+  sessionStorage.setItem("vitals_readings", JSON.stringify(readings));
+}
+
+// Persist the latest bot message as the "summary" shown on the report page.
+function saveLastSummary(text) {
+  const readings = JSON.parse(
+    sessionStorage.getItem("vitals_readings") || "{}"
+  );
+  readings.lastSummaryMessage = text;
+  readings.updatedAt = new Date().toISOString();
+  sessionStorage.setItem("vitals_readings", JSON.stringify(readings));
 }
 
 // Heuristic: scan a user message for BP / sugar / pulse readings and update
@@ -72,6 +108,15 @@ function scanForVitals(text) {
     const systolic = parseInt(bpMatch[1], 10);
     const diastolic = parseInt(bpMatch[2], 10);
     setTile("bp", `${systolic}/${diastolic}`, classifyBP(systolic, diastolic));
+    return;
+  }
+
+  // Temperature: needs a keyword + supports decimals (e.g. "38.5")
+  const tempKeyword = /(temperature|temp\b|fever|celsius|°c)/.test(lower);
+  const tempNumberMatch = text.match(/\d{2,3}(\.\d{1,2})?/);
+  if (tempKeyword && tempNumberMatch) {
+    const value = parseFloat(tempNumberMatch[0]);
+    setTile("temp", `${value}`, classifyTemp(value));
     return;
   }
 
@@ -156,6 +201,7 @@ async function sendToBackend() {
 
     history.push({ role: "assistant", text: data.reply });
     appendMessage("assistant", data.reply);
+    saveLastSummary(data.reply);
   } catch (err) {
     hideTyping();
     appendMessage(
@@ -189,7 +235,8 @@ chatForm.addEventListener("submit", (e) => {
 restartBtn.addEventListener("click", () => {
   history = [];
   chatLog.innerHTML = "";
-  ["bp", "sugar", "pulse"].forEach((ch) => {
+  sessionStorage.removeItem("vitals_readings");
+  ["bp", "sugar", "pulse", "temp"].forEach((ch) => {
     const tile = document.getElementById(`tile-${ch}`);
     tile.classList.remove("is-filled");
     const badge = document.getElementById(`badge-${ch}`);
@@ -203,6 +250,7 @@ restartBtn.addEventListener("click", () => {
   document.getElementById("val-bp").textContent = "--/--";
   document.getElementById("val-sugar").textContent = "--";
   document.getElementById("val-pulse").textContent = "--";
+  document.getElementById("val-temp").textContent = "--";
   startConversation();
 });
 
